@@ -7,11 +7,14 @@ use App\Filament\Resources\UserResource\RelationManagers;
 use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Filament\Forms\Components\Toggle;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Facades\Filament;
 
 class UserResource extends Resource
 {
@@ -23,16 +26,29 @@ class UserResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('name')
+                TextInput::make('name')
                 ->required(),
-            Forms\Components\TextInput::make('email')
+                
+                TextInput::make('email')
                 ->email()
                 ->unique(ignoreRecord: true)
                 ->required(),
-            Forms\Components\TextInput::make('password')
+                
+                Forms\Components\TextInput::make('password')
+                ->label('Password')
                 ->password()
-                ->dehydrated(fn ($state) => filled($state)) // Only update password if changed
-                ->required(fn (string $context) => $context === 'create'),
+                ->maxLength(255)
+                ->dehydrateStateUsing(fn ($state, $record) => 
+                    filled($state) ? bcrypt($state) : $record->password // Keep old password if empty
+                )
+                ->required(fn ($record) => $record === null) // Required only for new users
+                ->nullable(),
+
+                // Checkbox to set admin role
+                Toggle::make('is_admin')
+                ->label('Admin')
+                ->required()
+                ->hidden(fn () => !Filament::auth()->user()?->isAdmin()), // Only show this field if the logged-in user is an admin
             ]);
     }
 
@@ -48,7 +64,13 @@ class UserResource extends Resource
             Tables\Columns\TextColumn::make('email')
                 ->sortable()
                 ->searchable(),
+
+            Tables\Columns\IconColumn::make('is_admin')
+                ->label('Admin')
+                ->boolean(), // Displays as a true/false icon
+
             Tables\Columns\TextColumn::make('created_at')
+                ->label('Created At')
                 ->dateTime()
                 ->sortable(),
         ])
