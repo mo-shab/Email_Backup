@@ -45,4 +45,10 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    // Define the relationship to the EmailAccount model
+    public function emailAccounts()
+    {
+        return $this->hasMany(EmailAccount::class);
+    }
 }

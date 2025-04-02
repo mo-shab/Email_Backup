@@ -26,4 +26,10 @@ class EmailAccount extends Model
     {
         return Crypt::decryptString($value);
     }
+
+    // Define the relationship to the User model
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

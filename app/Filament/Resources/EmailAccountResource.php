@@ -17,6 +17,7 @@ use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Actions\DeleteBulkAction;
 use Filament\Tables\Actions\BulkActionGroup;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Forms\Components\Select;
 
 class EmailAccountResource extends Resource
 {
@@ -27,9 +28,11 @@ class EmailAccountResource extends Resource
     {
         return $form
             ->schema([
-                TextInput::make('user_id')
-                    ->required()
-                    ->numeric(),
+                Select::make('user_id')
+                    ->label('User')
+                    ->relationship('user', 'name') // This pulls the name from the User model
+                    ->searchable() // Make the dropdown searchable
+                    ->required(),
                 TextInput::make('email')
                     ->email()
                     ->required()
@@ -63,11 +66,14 @@ class EmailAccountResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('user_id')
-                    ->numeric()
-                    ->sortable(),
+                TextColumn::make('user.name')
+                    ->label('User Name')
+                    ->sortable()
+                    ->searchable(),
+
                 TextColumn::make('email')
                     ->searchable(),
+
                 TextColumn::make('imap_server')
                     ->searchable(),
                 TextColumn::make('imap_port')
