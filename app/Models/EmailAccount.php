@@ -32,4 +32,15 @@ class EmailAccount extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($emailAccount) {
+            if (!$emailAccount->user_id) {
+                $emailAccount->user_id = auth()->user()->id; // Assign logged-in user
+            }
+        });
+    }
 }

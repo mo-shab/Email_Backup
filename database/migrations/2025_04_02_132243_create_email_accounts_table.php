@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('email_accounts', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete()->default(1);
             $table->string('email');
             $table->string('imap_server');
             $table->integer('imap_port')->default(993);

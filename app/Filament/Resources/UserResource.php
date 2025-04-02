@@ -102,4 +102,9 @@ class UserResource extends Resource
             'edit' => Pages\EditUser::route('/{record}/edit'),
         ];
     }
+
+    public static function canAccess(): bool
+    {
+        return Filament::auth()->user()?->is_admin ?? false; // Only admins can access
+    }
 }

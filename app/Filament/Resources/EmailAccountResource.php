@@ -18,6 +18,8 @@ use Filament\Tables\Actions\DeleteBulkAction;
 use Filament\Tables\Actions\BulkActionGroup;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\Select;
+use Filament\Facades\Filament;
+
 
 class EmailAccountResource extends Resource
 {
@@ -30,8 +32,9 @@ class EmailAccountResource extends Resource
             ->schema([
                 Select::make('user_id')
                     ->label('User')
-                    ->relationship('user', 'name') // This pulls the name from the User model
-                    ->searchable() // Make the dropdown searchable
+                    ->relationship('user', 'name')
+                    ->default(Filament::auth()->id()) // Set default to logged-in user
+                    ->disabled(fn () => !Filament::auth()->user()?->is_admin) // Non-admins cannot change this
                     ->required(),
                 TextInput::make('email')
                     ->email()
@@ -120,5 +123,27 @@ class EmailAccountResource extends Resource
             'create' => Pages\CreateEmailAccount::route('/create'),
             'edit' => Pages\EditEmailAccount::route('/{record}/edit'),
         ];
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+    
+        // If user is NOT admin, filter the query to only show their email accounts
+        if (!Filament::auth()->user()?->is_admin) {
+            return $query->where('user_id', Filament::auth()->id());
+        }
+    
+        return $query; // Admins see all email accounts
+    }
+
+    public static function canEdit($record): bool
+    {
+        return Filament::auth()->user()?->is_admin || $record->user_id === Filament::auth()->id();
+    }
+
+    public static function canView($record): bool
+    {
+        return Filament::auth()->user()?->is_admin || $record->user_id === Filament::auth()->id();
     }
 }
