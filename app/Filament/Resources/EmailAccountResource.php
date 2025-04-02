@@ -3,54 +3,58 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\EmailAccountResource\Pages;
-use App\Filament\Resources\EmailAccountResource\RelationManagers;
 use App\Models\EmailAccount;
-use Filament\Forms;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Table;
+use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Actions\DeleteBulkAction;
+use Filament\Tables\Actions\BulkActionGroup;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class EmailAccountResource extends Resource
 {
     protected static ?string $model = EmailAccount::class;
-
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('user_id')
+                TextInput::make('user_id')
                     ->required()
                     ->numeric(),
-                Forms\Components\TextInput::make('email')
+                TextInput::make('email')
                     ->email()
                     ->required()
                     ->maxLength(255),
-                Forms\Components\TextInput::make('imap_server')
+                TextInput::make('imap_server')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\TextInput::make('imap_port')
+                TextInput::make('imap_port')
                     ->required()
                     ->numeric()
                     ->default(993),
-                Forms\Components\TextInput::make('smtp_server')
+                TextInput::make('smtp_server')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\TextInput::make('smtp_port')
+                TextInput::make('smtp_port')
                     ->required()
                     ->numeric()
                     ->default(587),
-                Forms\Components\TextInput::make('username')
+                TextInput::make('username')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\Textarea::make('password')
+                Textarea::make('password')
                     ->required()
                     ->columnSpanFull(),
-                Forms\Components\Toggle::make('use_ssl')
+                Toggle::make('use_ssl')
                     ->required(),
             ]);
     }
@@ -59,52 +63,48 @@ class EmailAccountResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('user_id')
+                TextColumn::make('user_id')
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('email')
+                TextColumn::make('email')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('imap_server')
+                TextColumn::make('imap_server')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('imap_port')
+                TextColumn::make('imap_port')
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('smtp_server')
+                TextColumn::make('smtp_server')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('smtp_port')
+                TextColumn::make('smtp_port')
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('username')
+                TextColumn::make('username')
                     ->searchable(),
-                Tables\Columns\IconColumn::make('use_ssl')
+                IconColumn::make('use_ssl')
                     ->boolean(),
-                Tables\Columns\TextColumn::make('created_at')
+                TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
+                TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->filters([
-                //
-            ])
+            ->filters([])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                EditAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ]);
     }
 
     public static function getRelations(): array
     {
-        return [
-            //
-        ];
+        return [];
     }
 
     public static function getPages(): array
